@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import javax.validation.Valid;
@@ -11,6 +10,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static ru.yandex.practicum.filmorate.validation.UserValidation.validateUserId;
+import static ru.yandex.practicum.filmorate.validation.UserValidation.validateUserName;
+
 @RestController
 @RequestMapping("/users")
 @Slf4j
@@ -18,20 +20,10 @@ public class UserController {
     private final Map<Integer, User> users = new HashMap<>();
     private int id = 1;
 
-    // этот метод необходимо перенести из контроллера? как лучше назвать пакет?
-    private static void checkName(User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-            log.info("Пользователю с id {} присвоено новое имя {}", user.getId(), user.getLogin());
-        }
-    }
-
     @PostMapping()
     public User create(@Valid @RequestBody User user) {
-        if (users.containsKey(user.getId())) {
-            throw new ValidationException("Пользователь с id " + user.getId() + " уже зарегистрирован.");
-        }
-        checkName(user);
+        validateUserId(users.containsKey(user.getId()), user, " уже зарегистрирован.");
+        validateUserName(user);
         user.setId(id++);
         users.put(user.getId(), user);
         log.info("Пользователь с id {} зарегистрирован", user.getId());
@@ -40,10 +32,8 @@ public class UserController {
 
     @PutMapping()
     public User update(@Valid @RequestBody User user) {
-        checkName(user);
-        if (!users.containsKey(user.getId())) {
-            throw new ValidationException("Пользователя с id " + user.getId() + " не существует.");
-        }
+        validateUserId(!users.containsKey(user.getId()), user, " не зарегистрирован.");
+        validateUserName(user);
         users.put(user.getId(), user);
         log.info("Пользователь с id {} обновлён", user.getId());
         return user;
