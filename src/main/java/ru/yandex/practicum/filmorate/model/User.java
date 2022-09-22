@@ -5,16 +5,20 @@ import lombok.Data;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.PastOrPresent;
+import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
 
 @Data
 @Builder
 public class User {
     private int id;
-    @Email
+    @Email(message = "Электронная почта не может быть пустой и должна содержать символ '@'.")
     private String email;
-    @NotBlank
+    @NotBlank(message = "Логин не может быть пустым.")
+    @Pattern(regexp = "^\\S*$", message = "Логин не может содержать пробелы.")
     private String login;
     private String name;
+    @PastOrPresent(message = "Дата рождения не может быть в будущем.")
     private LocalDate birthday;
 }
