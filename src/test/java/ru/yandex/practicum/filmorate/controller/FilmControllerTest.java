@@ -13,37 +13,6 @@ class FilmControllerTest {
     FilmController fc = new FilmController();
 
     @Test
-    void create() {
-        Film film = Film.builder()
-                .name("Test")
-                .description("create")
-                .releaseDate(LocalDate.of(1895, 12, 28))
-                .duration(1)
-                .build();
-        fc.create(film);
-        Film savedFilm = fc.getAll().get(0);
-        assertEquals(1, fc.getAll().size(), "Количество фильмов не совпадает.");
-        assertEquals(film, savedFilm, "Фильм не добавился.");
-    }
-
-    @Test
-    void createWithFailedName() {
-    }
-
-    @Test
-    void createWithFailedDescription() {
-    }
-
-    @Test
-    void createWithFailedReleaseDate() {
-    }
-
-    @Test
-    void createWithFailedDuration() {
-    }
-
-
-    @Test
     void update() {
         Film film = Film.builder()
                 .name("Test")
@@ -51,7 +20,6 @@ class FilmControllerTest {
                 .releaseDate(LocalDate.of(1895, 12, 28))
                 .duration(1)
                 .build();
-        fc.create(film);
         Film updatedFilm = Film.builder()
                 .id(1)
                 .name("Test")
@@ -59,6 +27,7 @@ class FilmControllerTest {
                 .releaseDate(LocalDate.of(1895, 12, 28))
                 .duration(1)
                 .build();
+        fc.create(film);
         fc.update(updatedFilm);
         Film savedFilm = fc.getAll().get(0);
         assertEquals(1, fc.getAll().size(), "Количество фильмов не совпадает.");
@@ -82,24 +51,5 @@ class FilmControllerTest {
                 .duration(1)
                 .build();
         assertThrows(ValidationException.class, () -> fc.update(updatedFilm), "Фильма с id " + updatedFilm.getId() + " не существует.");
-    }
-
-    @Test
-    void getFilms() {
-        Film film1 = Film.builder()
-                .name("Test")
-                .description("getFilms")
-                .releaseDate(LocalDate.of(1895, 12, 28))
-                .duration(1)
-                .build();
-        Film film2 = Film.builder()
-                .name("Test")
-                .description("getFilms")
-                .releaseDate(LocalDate.of(1895, 12, 28))
-                .duration(2)
-                .build();
-        fc.create(film1);
-        fc.create(film2);
-        assertEquals(2, fc.getAll().size(), "Количество фильмов не совпадает.");
     }
 }
