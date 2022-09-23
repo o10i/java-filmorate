@@ -10,8 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static ru.yandex.practicum.filmorate.service.LoginService.setUserNameIfEmpty;
 import static ru.yandex.practicum.filmorate.validation.UserValidation.validateUserId;
-import static ru.yandex.practicum.filmorate.validation.UserValidation.validateUserName;
 
 @RestController
 @RequestMapping("/users")
@@ -23,7 +23,7 @@ public class UserController {
     @PostMapping()
     public User create(@Valid @RequestBody User user) {
         validateUserId(users.containsKey(user.getId()), user, " уже зарегистрирован.");
-        validateUserName(user);
+        setUserNameIfEmpty(user);
         user.setId(id++);
         users.put(user.getId(), user);
         log.info("Пользователь с id {} зарегистрирован", user.getId());
@@ -33,7 +33,7 @@ public class UserController {
     @PutMapping()
     public User update(@Valid @RequestBody User user) {
         validateUserId(!users.containsKey(user.getId()), user, " не зарегистрирован.");
-        validateUserName(user);
+        setUserNameIfEmpty(user);
         users.put(user.getId(), user);
         log.info("Пользователь с id {} обновлён", user.getId());
         return user;
