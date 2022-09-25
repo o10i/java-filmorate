@@ -16,8 +16,8 @@ import static ru.yandex.practicum.filmorate.validation.FilmValidation.validateFi
 @RequestMapping("/films")
 @Slf4j
 public class FilmController {
-    private final Map<Integer, Film> films = new HashMap<>();
-    private int id = 1;
+    protected final Map<Integer, Film> films = new HashMap<>();
+    protected int id = 1;
 
     @PostMapping()
     public Film create(@Valid @RequestBody Film film) {

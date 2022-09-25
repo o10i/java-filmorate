@@ -17,8 +17,8 @@ import static ru.yandex.practicum.filmorate.validation.UserValidation.validateUs
 @RequestMapping("/users")
 @Slf4j
 public class UserController {
-    private final Map<Integer, User> users = new HashMap<>();
-    private int id = 1;
+    protected final Map<Integer, User> users = new HashMap<>();
+    protected int id = 1;
 
     @PostMapping()
     public User create(@Valid @RequestBody User user) {
