@@ -13,7 +13,7 @@ import java.util.Set;
 @Data
 @Builder
 public class User {
-    private long id;
+    private Long id;
     @Email(message = "Электронная почта не может быть пустой и должна содержать символ '@'.")
     private String email;
     @NotBlank(message = "Логин не может быть пустым.")
