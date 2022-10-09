@@ -125,7 +125,7 @@ public class UserControllerTest {
         User user = getUser();
         uc.create(user);
         User updatedUser = getUser();
-        updatedUser.setId(0);
+        updatedUser.setId(0L);
         assertThrows(ValidationException.class, () -> uc.update(updatedUser), "Пользователя с id " + updatedUser.getId() + " не существует.");
     }
 
@@ -133,14 +133,14 @@ public class UserControllerTest {
     public void givenUsers_whenGetAll_thenStatus200() throws Exception {
         User user1 = getUser();
         user1.setName("Test1");
-        user1.setId(1);
+        user1.setId(1L);
         mockMvc.perform(post("/users")
                         .content(objectMapper.writeValueAsString(user1))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
         User user2 = getUser();
         user2.setName("Test2");
-        user2.setId(2);
+        user2.setId(2L);
         mockMvc.perform(post("/users")
                         .content(objectMapper.writeValueAsString(user2))
                         .contentType(MediaType.APPLICATION_JSON))

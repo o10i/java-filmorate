@@ -121,7 +121,7 @@ public class FilmControllerTest {
         Film film = getFilm();
         fc.create(film);
         Film updatedFilm = getFilm();
-        updatedFilm.setId(0);
+        updatedFilm.setId(0L);
         assertThrows(ValidationException.class, () -> fc.update(updatedFilm), "Фильма с id " + updatedFilm.getId() + " не существует.");
     }
 
@@ -129,14 +129,14 @@ public class FilmControllerTest {
     public void givenFilms_whenGetAll_thenStatus200() throws Exception {
         Film film1 = getFilm();
         film1.setName("Test1");
-        film1.setId(1);
+        film1.setId(1L);
         mockMvc.perform(post("/films")
                         .content(objectMapper.writeValueAsString(film1))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
         Film film2 = getFilm();
         film2.setName("Test2");
-        film2.setId(2);
+        film2.setId(2L);
         mockMvc.perform(post("/films")
                         .content(objectMapper.writeValueAsString(film2))
                         .contentType(MediaType.APPLICATION_JSON))
