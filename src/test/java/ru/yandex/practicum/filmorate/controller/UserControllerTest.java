@@ -28,11 +28,11 @@ public class UserControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-/*    @AfterEach
+    @AfterEach
     void tearDown() {
-        uc.users.clear();
-        uc.id = 1;
-    }*/
+        uc.getAll().clear();
+        //uc.userService. = 1;
+    }
 
     private User getUser() {
         return User.builder()
@@ -103,7 +103,7 @@ public class UserControllerTest {
                 .andExpect(status().is4xxClientError());
     }
 
-/*    @Test
+    @Test
     public void givenUser_whenUpdated_thenStatus200andUpdatedUserReturned() throws Exception {
         User user = getUser();
         mockMvc.perform(post("/users")
@@ -112,13 +112,13 @@ public class UserControllerTest {
                 .andExpect(status().isOk());
         User updatedUser = getUser();
         updatedUser.setName("UpdatedUser");
-        updatedUser.setId(1);
+        updatedUser.setId(1L);
         mockMvc.perform(put("/users")
                         .content(objectMapper.writeValueAsString(updatedUser))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(uc.users.get(1))));
-    }*/
+                .andExpect(content().json(objectMapper.writeValueAsString(uc.getAll().get(1))));
+    }
 
     @Test
     public void givenUser_whenUpdatedWithUnknownId_thenThrowsValidationException() {
