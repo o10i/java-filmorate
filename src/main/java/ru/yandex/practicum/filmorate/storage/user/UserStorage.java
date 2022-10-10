@@ -13,4 +13,6 @@ public interface UserStorage {
     List<User> getAll();
 
     Map<Long, User> getUsers();
+
+    User remove(User user);
 }

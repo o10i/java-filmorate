@@ -32,7 +32,13 @@ public class InMemoryUserStorage implements UserStorage {
         return new ArrayList<>(users.values());
     }
 
+    @Override
     public Map<Long, User> getUsers() {
         return users;
+    }
+
+    @Override
+    public User remove(User user) {
+        return users.remove(user.getId());
     }
 }
