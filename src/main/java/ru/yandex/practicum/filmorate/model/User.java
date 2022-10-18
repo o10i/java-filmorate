@@ -8,11 +8,12 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.PastOrPresent;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
+import java.util.Set;
 
 @Data
 @Builder
 public class User {
-    private int id;
+    private Long id;
     @Email(message = "Электронная почта не может быть пустой и должна содержать символ '@'.")
     private String email;
     @NotBlank(message = "Логин не может быть пустым.")
@@ -21,4 +22,5 @@ public class User {
     private String name;
     @PastOrPresent(message = "Дата рождения не может быть в будущем.")
     private LocalDate birthday;
+    private Set<Long> friends;
 }
