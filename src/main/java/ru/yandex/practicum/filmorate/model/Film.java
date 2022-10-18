@@ -2,6 +2,8 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.Builder;
 import lombok.Data;
+import ru.yandex.practicum.filmorate.enums.Genre;
+import ru.yandex.practicum.filmorate.enums.Rating;
 import ru.yandex.practicum.filmorate.validation.FilmReleaseDateConstraint;
 
 import javax.validation.constraints.NotBlank;
@@ -23,4 +25,6 @@ public class Film {
     @Positive(message = "Продолжительность фильма должна быть положительной.")
     private int duration;
     private Set<Long> likes;
+    private Set<Genre> genres;
+    private Rating rating;
 }
