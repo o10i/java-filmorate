@@ -1,10 +1,21 @@
 # java-filmorate
 Пояснения по схеме:
-- Касательно связей "один ко многим" требуются уточнения
-- Касательно таблиц friendship, like, film_genre, допускаю, что это связующие таблицы и в них PK не обязателен
-- Касательно таблиц status, rating, genre, их реализация в коде через 'enum', которые уникальны
+- Схема создана с помощью IDEA
 
 ![Entity–relationship model](assets/images/er_model.png)
 
-А тут примеры запросов:
-- Только непонятно каких, HTTP или в базе данных
+Примеры запросов:
+- Показать все фильмы:
+  - SELECT *
+    FROM films;
+- Показать всех пользователей:
+  - SELECT *
+    FROM users;
+- Найти фильм по id:
+  - SELECT *
+    FROM films
+    WHERE id = ?;
+- Найти пользователя по id:
+    - SELECT *
+      FROM users
+      WHERE id = ?;
