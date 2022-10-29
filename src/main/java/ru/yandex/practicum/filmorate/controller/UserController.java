@@ -19,23 +19,23 @@ public class UserController {
     }
 
     @PostMapping()
-    public User create(@Valid @RequestBody User user) {
-        return userService.create(user);
-    }
-
-    @PutMapping()
-    public User update(@Valid @RequestBody User user) {
-        return userService.update(user);
-    }
-
-    @GetMapping()
-    public List<User> getAll() {
-        return userService.getAll();
+    public User saveUser(@Valid @RequestBody User user) {
+        return userService.saveUser(user);
     }
 
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable Long id) {
-        return userService.getUserById(id);
+    public User findUserById(@PathVariable Long id) {
+        return userService.findUserById(id);
+    }
+
+    @GetMapping()
+    public List<User> findAllUsers() {
+        return userService.findAllUsers();
+    }
+
+    @PutMapping()
+    public User updateUser(@Valid @RequestBody User user) {
+        return userService.updateUser(user);
     }
 
     @PutMapping("/{id}/friends/{friendId}")

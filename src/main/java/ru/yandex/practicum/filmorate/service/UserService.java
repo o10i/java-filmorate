@@ -20,43 +20,50 @@ public class UserService {
     private final UserStorage userStorage;
 
     @Autowired
-    public UserService(UserStorage userStorage)  {
+    public UserService(UserStorage userStorage) {
         this.userStorage = userStorage;
     }
 
-    public User create(User user) {
-        if (userStorage.getUsers().containsKey(user.getId())) {
+    public User saveUser(User user) {
+        if (userStorage.findUserById(user.getId()) != null) {
             throw new UserAlreadyExistException("Пользователь с id " + user.getId() + " уже зарегистрирован.");
         }
         setUserNameAsLoginIfEmpty(user);
-        User createdUser = userStorage.create(user);
+        User savedUser = userStorage.saveUser(user);
         log.debug("Пользователь с id {} зарегистрирован.", user.getId());
-        return createdUser;
+        return savedUser;
     }
 
-    public User update(User user) {
-        if (!userStorage.getUsers().containsKey(user.getId())) {
-            log.debug("Пользователь с id {} не зарегистрирован.", user.getId());
+    public User findUserById(Long id) {
+        User user = userStorage.findUserById(id);
+        if (user == null) {
+            throw new UserNotFoundException("Пользователь с id " + id + " не зарегистрирован.");
+        }
+        log.debug("Пользователь с id {} найден.", id);
+        return user;
+    }
+
+    public List<User> findAllUsers() {
+        log.debug("Все пользователи найдены.");
+        return userStorage.findAllUsers();
+    }
+
+    public User updateUser(User user) {
+        if (userStorage.findUserById(user.getId()) == null) {
             throw new UserNotFoundException("Пользователь с id " + user.getId() + " не зарегистрирован.");
         }
         setUserNameAsLoginIfEmpty(user);
-        User updatedUser = userStorage.update(user);
+        User updatedUser = userStorage.updateUser(user);
         log.debug("Пользователь с id {} обновлён.", user.getId());
         return updatedUser;
     }
 
-    public List<User> getAll() {
-        log.debug("Все пользователи возвращены.");
-        return userStorage.getAll();
-    }
-
-    public User getUserById(Long id) {
-        if (!userStorage.getUsers().containsKey(id)) {
-            log.debug("Пользователь с id {} не зарегистрирован.", id);
-            throw new UserNotFoundException("Пользователь с id " + id+ " не зарегистрирован.");
+    public boolean deleteUser(Long id) {
+        if (userStorage.findUserById(id) == null) {
+            throw new UserNotFoundException("Пользователь с id " + id + " не зарегистрирован.");
         }
-        log.debug("Пользователь с id {} возвращён.", id);
-        return userStorage.getUsers().get(id);
+        log.debug("Пользователь с id {} удалён.", id);
+        return true;
     }
 
     public List<User> getCommonFriends(Long id, Long otherId) {
@@ -67,21 +74,21 @@ public class UserService {
     }
 
     public List<User> getUserFriends(Long id) {
-        Set<Long> friendsId = getUserById(id).getFriends();
+        Set<Long> friendsId = findUserById(id).getFriends();
         List<User> collect = new ArrayList<>();
         if (friendsId != null) {
-            collect = friendsId.stream().map(this::getUserById).collect(Collectors.toList());
+            collect = friendsId.stream().map(this::findUserById).collect(Collectors.toList());
         }
         log.debug("Все друзья пользователя с id {} возвращены.", id);
         return collect;
     }
 
     public void addFriend(Long id, Long friendId) {
-        User userId = getUserById(id);
+        User userId = findUserById(id);
         if (userId.getFriends() == null) {
             userId.setFriends(new HashSet<>());
         }
-        User userFriendId = getUserById(friendId);
+        User userFriendId = findUserById(friendId);
         if (userFriendId.getFriends() == null) {
             userFriendId.setFriends(new HashSet<>());
         }
@@ -91,8 +98,8 @@ public class UserService {
     }
 
     public void removeFriend(Long id, Long friendId) {
-        getUserById(id).getFriends().remove(friendId);
-        getUserById(friendId).getFriends().remove(id);
+        findUserById(id).getFriends().remove(friendId);
+        findUserById(friendId).getFriends().remove(id);
         log.debug("Пользователи с id {} и {} удалили друг друга из друзей.", id, friendId);
     }
 

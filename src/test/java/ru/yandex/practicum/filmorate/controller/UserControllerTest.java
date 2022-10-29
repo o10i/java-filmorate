@@ -30,7 +30,7 @@ public class UserControllerTest {
 
     @AfterEach
     void tearDown() {
-        uc.getAll().clear();
+        uc.findAllUsers().clear();
         //uc.userService. = 1;
     }
 
@@ -122,10 +122,10 @@ public class UserControllerTest {
     @Test
     public void givenUser_whenUpdatedWithUnknownId_thenThrowsValidationException() {
         User user = getUser();
-        uc.create(user);
+        uc.saveUser(user);
         User updatedUser = getUser();
         updatedUser.setId(0L);
-        assertThrows(UserNotFoundException.class, () -> uc.update(updatedUser), "Пользователя с id " + updatedUser.getId() + " не существует.");
+        assertThrows(UserNotFoundException.class, () -> uc.updateUser(updatedUser), "Пользователя с id " + updatedUser.getId() + " не существует.");
     }
 
 /*    @Test

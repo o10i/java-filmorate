@@ -23,41 +23,48 @@ public class FilmService {
         this.filmStorage = filmStorage;
     }
 
-    public Film create(Film film) {
-        if (filmStorage.getFilms().containsKey(film.getId())) {
+    public Film saveFilm(Film film) {
+        if (filmStorage.findFilmById(film.getId()) != null) {
             throw new FilmAlreadyExistException("Фильм с id " + film.getId() + " уже существует.");
         }
-        Film createdFilm = filmStorage.create(film);
+        Film savedFilm = filmStorage.saveFilm(film);
         log.debug("Фильм с id {} добавлен.", film.getId());
-        return createdFilm;
+        return savedFilm;
     }
 
-    public Film update(Film film) {
-        if (!filmStorage.getFilms().containsKey(film.getId())) {
-            log.debug("Фильм с id {} не существует.", film.getId());
+    public Film findFilmById(Long id) {
+        Film film = filmStorage.findFilmById(id);
+        if (film == null) {
+            throw new FilmNotFoundException("Фильм с id " + id + " не существует.");
+        }
+        log.debug("Фильм с id {} найден.", id);
+        return film;
+    }
+
+    public List<Film> findAllFilms() {
+        log.debug("Все фильмы найдены.");
+        return filmStorage.findAllFilms();
+    }
+
+    public Film updateFilm(Film film) {
+        if (filmStorage.findFilmById(film.getId()) == null) {
             throw new FilmNotFoundException("Фильм с id " + film.getId() + " не существует.");
         }
-        Film updatedFilm = filmStorage.update(film);
+        Film updatedFilm = filmStorage.updateFilm(film);
         log.debug("Фильм с id {} обновлён.", film.getId());
         return updatedFilm;
     }
 
-    public List<Film> getAll() {
-        log.debug("Все фильмы возвращены.");
-        return filmStorage.getAll();
-    }
-
-    public Film getFilmById(Long id) {
-        if (!filmStorage.getFilms().containsKey(id)) {
-            log.debug("Фильм с id {} не существует.", id);
+    public boolean deleteFilm(Long id) {
+        if (filmStorage.findFilmById(id) == null) {
             throw new FilmNotFoundException("Фильм с id " + id + " не существует.");
         }
-        log.debug("Фильм с id {} возвращён.", id);
-        return filmStorage.getFilms().get(id);
+        log.debug("Фильм с id {} удалён.", id);
+        return filmStorage.deleteFilm(id);
     }
 
     public void addLike(Long id, Long userId) {
-        Film film = getFilmById(id);
+        Film film = findFilmById(id);
         if (film.getLikes() == null) {
             film.setLikes(new HashSet<>());
         }
@@ -66,7 +73,7 @@ public class FilmService {
     }
 
     public void removeLike(Long id, Long userId) {
-        Set<Long> likes = getFilmById(id).getLikes();
+        Set<Long> likes = findFilmById(id).getLikes();
         if (!likes.contains(userId)) {
             throw new UserNotFoundException("Пользователь с id " + userId + " не ставил лайк на этом фильме.");
         }
@@ -75,7 +82,7 @@ public class FilmService {
     }
 
     public List<Film> getMostPopularFilms(int count) {
-        List<Film> allFilms = filmStorage.getAll();
+        List<Film> allFilms = filmStorage.findAllFilms();
         for (Film film : allFilms) {
             if (film.getLikes() == null) {
                 film.setLikes(new HashSet<>());

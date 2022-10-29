@@ -12,7 +12,6 @@ import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -30,7 +29,7 @@ public class FilmControllerTest {
 
     @AfterEach
     void tearDown() {
-        fc.getAll().clear();
+        fc.findAllFilms().clear();
         //fc.filmService. = 1;
     }
 
@@ -119,10 +118,10 @@ public class FilmControllerTest {
     @Test
     public void givenFilm_whenUpdatedWithUnknownId_thenThrowsValidationException() {
         Film film = getFilm();
-        fc.create(film);
+        fc.saveFilm(film);
         Film updatedFilm = getFilm();
         updatedFilm.setId(0L);
-        assertThrows(FilmNotFoundException.class, () -> fc.update(updatedFilm), "Фильма с id " + updatedFilm.getId() + " не существует.");
+        assertThrows(FilmNotFoundException.class, () -> fc.updateFilm(updatedFilm), "Фильма с id " + updatedFilm.getId() + " не существует.");
     }
 
 /*    @Test

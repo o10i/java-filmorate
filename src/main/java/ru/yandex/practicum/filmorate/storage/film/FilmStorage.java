@@ -3,16 +3,15 @@ package ru.yandex.practicum.filmorate.storage.film;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.List;
-import java.util.Map;
 
 public interface FilmStorage {
-    Film create(Film film);
+    Film saveFilm(Film film);
 
-    Film update(Film film);
+    Film findFilmById(Long id);
 
-    List<Film> getAll();
+    List<Film> findAllFilms();
 
-    Map<Long, Film> getFilms();
+    Film updateFilm(Film film);
 
-    Film remove(Film film);
+    boolean deleteFilm(Long id);
 }

@@ -14,30 +14,31 @@ public class InMemoryFilmStorage implements FilmStorage {
     private Long id = 1L;
 
     @Override
-    public Film create(Film film) {
+    public Film saveFilm(Film film) {
         film.setId(id++);
         films.put(film.getId(), film);
         return film;
     }
 
     @Override
-    public Film update(Film film) {
+    public Film findFilmById(Long id) {
+        return films.get(id);
+    }
+
+    @Override
+    public List<Film> findAllFilms() {
+        return new ArrayList<>(films.values());
+    }
+
+    @Override
+    public Film updateFilm(Film film) {
         films.put(film.getId(), film);
         return film;
     }
 
     @Override
-    public List<Film> getAll() {
-        return new ArrayList<>(films.values());
-    }
-
-    @Override
-    public Map<Long, Film> getFilms() {
-        return films;
-    }
-
-    @Override
-    public Film remove(Film film) {
-        return films.remove(film.getId());
+    public boolean deleteFilm(Long id) {
+        films.remove(id);
+        return true;
     }
 }
