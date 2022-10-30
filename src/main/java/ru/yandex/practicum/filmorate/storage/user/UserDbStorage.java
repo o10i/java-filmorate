@@ -1,17 +1,19 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.List;
+import java.util.Objects;
 
-
+@Component("userDbStorage")
 public class UserDbStorage implements UserStorage {
-    private final Logger log = LoggerFactory.getLogger(UserDbStorage.class);
     private final JdbcTemplate jdbcTemplate;
 
     public UserDbStorage(JdbcTemplate jdbcTemplate) {
@@ -21,32 +23,36 @@ public class UserDbStorage implements UserStorage {
     @Override
     public User saveUser(User user) {
         String sqlQuery = "insert into USERS(EMAIL, LOGIN, NAME, BIRTHDAY) values (?, ?, ?, ?)";
-        jdbcTemplate.update(sqlQuery,
-                user.getEmail(),
-                user.getLogin(),
-                user.getName(),
-                user.getBirthday());
-        log.info("Пользователь {} добавлен.", user.getName());
-        return user;
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, user.getEmail());
+            ps.setString(2, user.getLogin());
+            ps.setString(3, user.getName());
+            ps.setDate(4, Date.valueOf(user.getBirthday()));
+            return ps;
+        }, keyHolder);
+        long id = Objects.requireNonNull(keyHolder.getKey()).longValue();
+        user.setId(id);
+        return findUserById(id);
     }
 
     @Override
     public User findUserById(Long id) {
         String sqlQuery = "select * from users where id = ?";
-        User user = jdbcTemplate.queryForObject(sqlQuery, this::mapRowToUser, id);
-        if (user == null) {
-            log.info("Пользователь с id = {} не найден.", id);
+        User user;
+        try {
+            user = jdbcTemplate.queryForObject(sqlQuery, this::mapRowToUser, id);
+        } catch (EmptyResultDataAccessException e) {
+            throw new ObjectNotFoundException("Пользователь с id " + id + " не найден.");
         }
-        log.info("Найден пользователь c id = {}", id);
         return user;
     }
 
     @Override
     public List<User> findAllUsers() {
         String sqlQuery = "select * from users";
-        List<User> users = jdbcTemplate.query(sqlQuery, this::mapRowToUser);
-        log.info("Все пользователи найдены.");
-        return users;
+        return jdbcTemplate.query(sqlQuery, this::mapRowToUser);
     }
 
     @Override
@@ -56,23 +62,43 @@ public class UserDbStorage implements UserStorage {
                 user.getEmail(),
                 user.getLogin(),
                 user.getName(),
-                user.getName(),
+                user.getBirthday(),
                 user.getId());
-        return user;
+        return findUserById(user.getId());
     }
 
     @Override
-    public boolean deleteUser(Long id) {
-        String sqlQuery = "delete from USERS where id = ?";
-        return jdbcTemplate.update(sqlQuery, id) > 0;
+    public List<User> findCommonFriends(Long id, Long otherId) {
+        String sqlQuery = "SELECT * FROM USERS WHERE ID IN (SELECT f1.FRIEND_ID FROM FRIENDSHIP f1 JOIN FRIENDSHIP f2 ON f2.USER_ID = ? AND f2.FRIEND_ID = f1.FRIEND_ID WHERE f1.USER_ID = ?)";
+        return jdbcTemplate.query(sqlQuery, this::mapRowToUser, id, otherId);
+    }
+
+    @Override
+    public void addFriend(Long id, Long friendId) {
+        findUserById(id);
+        findUserById(friendId);
+        String sqlQuery = "insert into FRIENDSHIP(USER_ID, FRIEND_ID) values (?, ?)";
+        jdbcTemplate.update(sqlQuery, id, friendId);
+    }
+
+    @Override
+    public List<User> findUserFriends(Long id) {
+        String sqlQuery = "select * from USERS where ID in (select FRIEND_ID from FRIENDSHIP where USER_ID = ?)";
+        return jdbcTemplate.query(sqlQuery, this::mapRowToUser, id);
+    }
+
+    @Override
+    public void removeFriend(Long id, Long friendId) {
+        String sqlQuery = "delete from FRIENDSHIP where USER_ID = ? and FRIEND_ID = ?";
+        jdbcTemplate.update(sqlQuery, id, friendId);
     }
 
     private User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {
         return User.builder()
                 .id(resultSet.getLong("id"))
-                .email(resultSet.getString("first_name"))
-                .login(resultSet.getString("last_name"))
-                .name(resultSet.getString("yearly_income"))
+                .email(resultSet.getString("email"))
+                .login(resultSet.getString("login"))
+                .name(resultSet.getString("name"))
                 .birthday(resultSet.getDate("birthday").toLocalDate())
                 .build();
     }

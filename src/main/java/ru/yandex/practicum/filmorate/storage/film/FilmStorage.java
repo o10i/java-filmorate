@@ -13,5 +13,9 @@ public interface FilmStorage {
 
     Film updateFilm(Film film);
 
-    boolean deleteFilm(Long id);
+    void saveLike(Long id, Long userId);
+
+    List<Film> findPopularFilms(Integer count);
+
+    boolean deleteLike(Long id, Long userId);
 }

@@ -8,7 +8,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
+import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
@@ -125,7 +125,7 @@ public class UserControllerTest {
         uc.saveUser(user);
         User updatedUser = getUser();
         updatedUser.setId(0L);
-        assertThrows(UserNotFoundException.class, () -> uc.updateUser(updatedUser), "Пользователя с id " + updatedUser.getId() + " не существует.");
+        assertThrows(ObjectNotFoundException.class, () -> uc.updateUser(updatedUser), "Пользователя с id " + updatedUser.getId() + " не существует.");
     }
 
 /*    @Test

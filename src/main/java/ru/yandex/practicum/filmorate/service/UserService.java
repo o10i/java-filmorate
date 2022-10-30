@@ -2,17 +2,12 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.UserAlreadyExistException;
-import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -20,93 +15,63 @@ public class UserService {
     private final UserStorage userStorage;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
         this.userStorage = userStorage;
     }
 
     public User saveUser(User user) {
-        if (userStorage.findUserById(user.getId()) != null) {
-            throw new UserAlreadyExistException("Пользователь с id " + user.getId() + " уже зарегистрирован.");
-        }
         setUserNameAsLoginIfEmpty(user);
         User savedUser = userStorage.saveUser(user);
-        log.debug("Пользователь с id {} зарегистрирован.", user.getId());
+        log.debug("Пользователь {} с id={} зарегистрирован.", user.getName(), user.getId());
         return savedUser;
     }
 
     public User findUserById(Long id) {
         User user = userStorage.findUserById(id);
-        if (user == null) {
-            throw new UserNotFoundException("Пользователь с id " + id + " не зарегистрирован.");
-        }
-        log.debug("Пользователь с id {} найден.", id);
+        log.debug("Пользователь с id={} найден.", id);
         return user;
     }
 
     public List<User> findAllUsers() {
+        List<User> users = userStorage.findAllUsers();
         log.debug("Все пользователи найдены.");
-        return userStorage.findAllUsers();
+        return users;
     }
 
     public User updateUser(User user) {
-        if (userStorage.findUserById(user.getId()) == null) {
-            throw new UserNotFoundException("Пользователь с id " + user.getId() + " не зарегистрирован.");
-        }
+        userStorage.findUserById(user.getId());
         setUserNameAsLoginIfEmpty(user);
         User updatedUser = userStorage.updateUser(user);
-        log.debug("Пользователь с id {} обновлён.", user.getId());
+        log.debug("Пользователь {} с id={} обновлён.", user.getName(), user.getId());
         return updatedUser;
     }
 
-    public boolean deleteUser(Long id) {
-        if (userStorage.findUserById(id) == null) {
-            throw new UserNotFoundException("Пользователь с id " + id + " не зарегистрирован.");
-        }
-        log.debug("Пользователь с id {} удалён.", id);
-        return true;
+    public List<User> findCommonFriends(Long id, Long otherId) {
+        List<User> commonFriends = userStorage.findCommonFriends(id, otherId);
+        log.debug("Общие друзья пользователей с id={} и id={} найдены.", id, otherId);
+        return commonFriends;
     }
 
-    public List<User> getCommonFriends(Long id, Long otherId) {
-        List<User> userFriends = getUserFriends(id);
-        List<User> otherUserFriends = getUserFriends(otherId);
-        log.debug("Общие друзья пользователей с id {} и {} возвращены.", id, otherId);
-        return userFriends.stream().filter(otherUserFriends::contains).collect(Collectors.toList());
-    }
-
-    public List<User> getUserFriends(Long id) {
-        Set<Long> friendsId = findUserById(id).getFriends();
-        List<User> collect = new ArrayList<>();
-        if (friendsId != null) {
-            collect = friendsId.stream().map(this::findUserById).collect(Collectors.toList());
-        }
-        log.debug("Все друзья пользователя с id {} возвращены.", id);
-        return collect;
+    public List<User> findUserFriends(Long id) {
+        List<User> userFriends = userStorage.findUserFriends(id);
+        log.debug("Все друзья пользователя с id={} найдены.", id);
+        return userFriends;
     }
 
     public void addFriend(Long id, Long friendId) {
-        User userId = findUserById(id);
-        if (userId.getFriends() == null) {
-            userId.setFriends(new HashSet<>());
-        }
-        User userFriendId = findUserById(friendId);
-        if (userFriendId.getFriends() == null) {
-            userFriendId.setFriends(new HashSet<>());
-        }
-        userId.getFriends().add(friendId);
-        userFriendId.getFriends().add(id);
-        log.debug("Пользователи с id {} и {} добавились друг другу в друзья.", id, friendId);
+        userStorage.addFriend(id, friendId);
+        log.debug("У пользователя с id={} новый друг с id={}.", id, friendId);
     }
 
     public void removeFriend(Long id, Long friendId) {
-        findUserById(id).getFriends().remove(friendId);
-        findUserById(friendId).getFriends().remove(id);
-        log.debug("Пользователи с id {} и {} удалили друг друга из друзей.", id, friendId);
+        userStorage.removeFriend(id, friendId);
+        log.debug("Пользователь с id={} удалил друга c id={}.", id, friendId);
     }
 
     private void setUserNameAsLoginIfEmpty(User user) {
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
-            log.debug("Пользователю без имени присвоено новое имя {}.", user.getLogin());
+            log.debug("Пользователю без имени присвоено новое имя '{}'.", user.getLogin());
         }
     }
 }
