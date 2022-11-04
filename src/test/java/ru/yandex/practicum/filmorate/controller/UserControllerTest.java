@@ -31,7 +31,6 @@ public class UserControllerTest {
     @AfterEach
     void tearDown() {
         uc.findAllUsers().clear();
-        //uc.userService. = 1;
     }
 
     private User getUser() {
@@ -42,20 +41,6 @@ public class UserControllerTest {
                 .birthday(LocalDate.of(2022, 1, 1))
                 .build();
     }
-
-/*    @Test
-    public void givenUser_whenCreate_thenStatus200andUserReturned() throws Exception {
-        User user = getUser();
-        mockMvc.perform(post("/users")
-                        .content(objectMapper.writeValueAsString(user))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.login").value("Test"))
-                .andExpect(jsonPath("$.name").value("name"))
-                .andExpect(jsonPath("$.email").value("mail@mail.ru"))
-                .andExpect(jsonPath("$.birthday").value("2022-01-01"));
-    }*/
 
     @Test
     public void givenUserWithEmptyName_whenCreate_thenNameAsLoginAndStatus200andUserReturned() throws Exception {
@@ -102,23 +87,6 @@ public class UserControllerTest {
                 .andExpect(status().is4xxClientError());
     }
 
-/*    @Test
-    public void givenUser_whenUpdated_thenStatus200andUpdatedUserReturned() throws Exception {
-        User user = getUser();
-        mockMvc.perform(post("/users")
-                        .content(objectMapper.writeValueAsString(user))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-        User updatedUser = getUser();
-        updatedUser.setName("UpdatedUser");
-        updatedUser.setId(1L);
-        mockMvc.perform(put("/users")
-                        .content(objectMapper.writeValueAsString(updatedUser))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(uc.getAll().get(1))));
-    }*/
-
     @Test
     public void givenUser_whenUpdatedWithUnknownId_thenThrowsValidationException() {
         User user = getUser();
@@ -127,25 +95,4 @@ public class UserControllerTest {
         updatedUser.setId(0L);
         assertThrows(ObjectNotFoundException.class, () -> uc.updateUser(updatedUser), "Пользователя с id " + updatedUser.getId() + " не существует.");
     }
-
-/*    @Test
-    public void givenUsers_whenGetAll_thenStatus200() throws Exception {
-        User user1 = getUser();
-        user1.setName("Test1");
-        user1.setId(1L);
-        mockMvc.perform(post("/users")
-                        .content(objectMapper.writeValueAsString(user1))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-        User user2 = getUser();
-        user2.setName("Test2");
-        user2.setId(2L);
-        mockMvc.perform(post("/users")
-                        .content(objectMapper.writeValueAsString(user2))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-        mockMvc.perform(get("/users"))
-                .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(Arrays.asList(user1, user2))));
-    }*/
 }

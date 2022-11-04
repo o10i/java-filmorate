@@ -36,12 +36,12 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void saveLike(Long id, Long userId) {
+    public boolean saveLike(Long id, Long userId) {
         Film film = findFilmById(id);
         if (film.getLikes() == null) {
-            film.setLikes(new HashSet<>());
+            film.setLikes(new ArrayList<>());
         }
-        film.getLikes().add(userId);
+        return film.getLikes().add(userId);
     }
 
     @Override
@@ -49,7 +49,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         List<Film> allFilms = findAllFilms();
         for (Film film : allFilms) {
             if (film.getLikes() == null) {
-                film.setLikes(new HashSet<>());
+                film.setLikes(new ArrayList<>());
             }
         }
         allFilms.sort(Comparator.comparing(film -> film.getLikes().size() * -1));

@@ -39,8 +39,8 @@ public class FilmController {
     }
 
     @PutMapping("/{id}/like/{userId}")
-    public void saveLike(@PathVariable Long id, @PathVariable Long userId) {
-        filmService.saveLike(id, userId);
+    public boolean saveLike(@PathVariable Long id, @PathVariable Long userId) {
+        return filmService.saveLike(id, userId);
     }
 
     @GetMapping("/popular")

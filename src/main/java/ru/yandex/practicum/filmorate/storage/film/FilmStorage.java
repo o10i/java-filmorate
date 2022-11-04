@@ -13,7 +13,7 @@ public interface FilmStorage {
 
     Film updateFilm(Film film);
 
-    void saveLike(Long id, Long userId);
+    boolean saveLike(Long id, Long userId);
 
     List<Film> findPopularFilms(Integer count);
 

@@ -3,7 +3,10 @@ package ru.yandex.practicum.filmorate.storage.user;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -45,7 +48,7 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public List<User> findUserFriends(Long id) {
-        Set<Long> friendsId = findUserById(id).getFriends();
+        List<Long> friendsId = findUserById(id).getFriends();
         List<User> friends = new ArrayList<>();
         if (friendsId != null) {
             friends = friendsId.stream().map(this::findUserById).collect(Collectors.toList());
@@ -54,22 +57,24 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public void addFriend(Long id, Long friendId) {
+    public boolean saveFriend(Long id, Long friendId) {
         User userId = findUserById(id);
         if (userId.getFriends() == null) {
-            userId.setFriends(new HashSet<>());
+            userId.setFriends(new ArrayList<>());
         }
         User userFriendId = findUserById(friendId);
         if (userFriendId.getFriends() == null) {
-            userFriendId.setFriends(new HashSet<>());
+            userFriendId.setFriends(new ArrayList<>());
         }
         userId.getFriends().add(friendId);
         userFriendId.getFriends().add(id);
+        return true;
     }
 
     @Override
-    public void removeFriend(Long id, Long friendId) {
+    public boolean deleteFriend(Long id, Long friendId) {
         findUserById(id).getFriends().remove(friendId);
         findUserById(friendId).getFriends().remove(id);
+        return true;
     }
 }

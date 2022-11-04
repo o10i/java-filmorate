@@ -28,6 +28,9 @@ public class FilmService {
 
     public Film findFilmById(Long id) {
         Film film = filmStorage.findFilmById(id);
+        if (film == null) {
+            throw new ObjectNotFoundException(String.format("Фильм с id=%d не найден.", id));
+        }
         log.debug("Фильм '{}' с id={} найден.", film.getName(), film.getId());
         return film;
     }
@@ -39,16 +42,17 @@ public class FilmService {
     }
 
     public Film updateFilm(Film film) {
-        filmStorage.findFilmById(film.getId());
+        findFilmById(film.getId());
         Film updatedFilm = filmStorage.updateFilm(film);
         log.debug("Фильм с id={} обновлён.", film.getId());
         return updatedFilm;
     }
 
 
-    public void saveLike(Long id, Long userId) {
-        filmStorage.saveLike(id, userId);
+    public boolean saveLike(Long id, Long userId) {
+        boolean result = filmStorage.saveLike(id, userId);
         log.debug("Пользователь с id={} поставил лайк на фильм с id={}.", userId, id);
+        return result;
     }
 
     public List<Film> findPopularFilms(Integer count) {

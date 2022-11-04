@@ -9,7 +9,6 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
 
 @Data
 @Builder
@@ -23,8 +22,8 @@ public class Film {
     private String description;
     @Positive(message = "Продолжительность фильма должна быть положительной.")
     private int duration;
-    private String rate;
+    private Integer rate;
     private Mpa mpa;
     private List<Genre> genres;
-    private Set<Long> likes;
+    private List<Long> likes;
 }

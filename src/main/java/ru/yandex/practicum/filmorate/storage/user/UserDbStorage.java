@@ -33,7 +33,6 @@ public class UserDbStorage implements UserStorage {
             return ps;
         }, keyHolder);
         long id = Objects.requireNonNull(keyHolder.getKey()).longValue();
-        user.setId(id);
         return findUserById(id);
     }
 
@@ -74,11 +73,12 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public void addFriend(Long id, Long friendId) {
+    public boolean saveFriend(Long id, Long friendId) {
         findUserById(id);
         findUserById(friendId);
         String sqlQuery = "insert into FRIENDSHIP(USER_ID, FRIEND_ID) values (?, ?)";
         jdbcTemplate.update(sqlQuery, id, friendId);
+        return true;
     }
 
     @Override
@@ -88,9 +88,10 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public void removeFriend(Long id, Long friendId) {
+    public boolean deleteFriend(Long id, Long friendId) {
         String sqlQuery = "delete from FRIENDSHIP where USER_ID = ? and FRIEND_ID = ?";
         jdbcTemplate.update(sqlQuery, id, friendId);
+        return true;
     }
 
     private User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {
@@ -100,6 +101,12 @@ public class UserDbStorage implements UserStorage {
                 .login(resultSet.getString("login"))
                 .name(resultSet.getString("name"))
                 .birthday(resultSet.getDate("birthday").toLocalDate())
+                .friends(findUserFriendsId(resultSet.getLong("id")))
                 .build();
+    }
+
+    private List<Long> findUserFriendsId(Long userId) {
+        String sqlQuery = "select FRIEND_ID from FRIENDSHIP where USER_ID = ?";
+        return jdbcTemplate.queryForList(sqlQuery, Long.class, userId);
     }
 }

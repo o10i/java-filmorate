@@ -17,7 +17,7 @@ public interface UserStorage {
 
     List<User> findUserFriends(Long id);
 
-    void addFriend(Long id, Long friendId);
+    boolean saveFriend(Long id, Long friendId);
 
-    void removeFriend(Long id, Long friendId);
+    boolean deleteFriend(Long id, Long friendId);
 }

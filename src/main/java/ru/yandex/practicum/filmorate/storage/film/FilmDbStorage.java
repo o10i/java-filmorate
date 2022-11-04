@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.storage.GenreDbStorage;
-import ru.yandex.practicum.filmorate.storage.MpaDbStorage;
+import ru.yandex.practicum.filmorate.service.GenreService;
+import ru.yandex.practicum.filmorate.service.MpaService;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
 import java.sql.*;
@@ -22,13 +22,13 @@ import java.util.Objects;
 public class FilmDbStorage implements FilmStorage {
     private final Logger log = LoggerFactory.getLogger(UserDbStorage.class);
     private final JdbcTemplate jdbcTemplate;
-    private final MpaDbStorage mpaDbStorage;
-    private final GenreDbStorage genreDbStorage;
+    private final MpaService mpaService;
+    private final GenreService genreService;
 
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, MpaDbStorage mpaDbStorage, GenreDbStorage genreDbStorage) {
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, MpaService mpaService, GenreService genreService) {
         this.jdbcTemplate = jdbcTemplate;
-        this.mpaDbStorage = mpaDbStorage;
-        this.genreDbStorage = genreDbStorage;
+        this.mpaService = mpaService;
+        this.genreService = genreService;
     }
 
     @Override
@@ -41,13 +41,12 @@ public class FilmDbStorage implements FilmStorage {
             ps.setDate(2, Date.valueOf(film.getReleaseDate()));
             ps.setString(3, film.getDescription());
             ps.setInt(4, film.getDuration());
-            ps.setString(5, film.getRate());
+            ps.setInt(5, film.getRate());
             ps.setInt(6, Math.toIntExact(film.getMpa().getId()));
             return ps;
         }, keyHolder);
 
         long id = Objects.requireNonNull(keyHolder.getKey()).longValue();
-        film.setId(id);
 
         if (film.getGenres() != null) {
             for (Genre genre : film.getGenres()) {
@@ -68,7 +67,7 @@ public class FilmDbStorage implements FilmStorage {
         try {
             film = jdbcTemplate.queryForObject(sqlQuery, this::mapRowToFilm, id);
         } catch (EmptyResultDataAccessException e) {
-            throw new ObjectNotFoundException(String.format("Фильм с id=%d найден.", id));
+            throw new ObjectNotFoundException(String.format("Фильм с id=%d не найден.", id));
         }
         return film;
     }
@@ -103,9 +102,10 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public void saveLike(Long id, Long userId) {
+    public boolean saveLike(Long id, Long userId) {
         String sqlQuery = "insert into LIKES(FILM_ID, USER_ID) values (?, ?)";
         jdbcTemplate.update(sqlQuery, id, userId);
+        return true;
     }
 
     @Override
@@ -127,9 +127,15 @@ public class FilmDbStorage implements FilmStorage {
                 .releaseDate(resultSet.getDate("release_date").toLocalDate())
                 .description(resultSet.getString("description"))
                 .duration(resultSet.getInt("duration"))
-                .rate(resultSet.getString("rate"))
-                .mpa(mpaDbStorage.findMpaById(Long.valueOf(resultSet.getString("mpa"))))
-                .genres(genreDbStorage.findFilmGenresByFilmId(resultSet.getLong("id")))
+                .rate(resultSet.getInt("rate"))
+                .mpa(mpaService.findMpaById(Long.valueOf(resultSet.getString("mpa"))))
+                .genres(genreService.findFilmGenresByFilmId(resultSet.getLong("id")))
+                .likes(findUsersIdWhoLikedFilm(resultSet.getLong("id")))
                 .build();
+    }
+
+    private List<Long> findUsersIdWhoLikedFilm(Long filmId) {
+        String sqlQuery = "select USER_ID from LIKES where FILM_ID = ?";
+        return jdbcTemplate.queryForList(sqlQuery, Long.class, filmId);
     }
 }

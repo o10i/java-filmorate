@@ -30,7 +30,6 @@ public class FilmControllerTest {
     @AfterEach
     void tearDown() {
         fc.findAllFilms().clear();
-        //fc.filmService. = 1;
     }
 
     private Film getFilm() {
@@ -98,23 +97,6 @@ public class FilmControllerTest {
                 .andExpect(status().is4xxClientError());
     }
 
-/*    @Test
-    public void givenFilm_whenUpdated_thenStatus200andUpdatedFilmReturned() throws Exception {
-        Film film = getFilm();
-        mockMvc.perform(post("/films")
-                        .content(objectMapper.writeValueAsString(film))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-        Film updatedFilm = getFilm();
-        updatedFilm.setName("UpdatedFilm");
-        updatedFilm.setId(1L);
-        mockMvc.perform(put("/films")
-                        .content(objectMapper.writeValueAsString(updatedFilm))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(fc.getAll().get(1))));
-    }*/
-
     @Test
     public void givenFilm_whenUpdatedWithUnknownId_thenThrowsValidationException() {
         Film film = getFilm();
@@ -123,25 +105,4 @@ public class FilmControllerTest {
         updatedFilm.setId(0L);
         assertThrows(ObjectNotFoundException.class, () -> fc.updateFilm(updatedFilm), "Фильма с id " + updatedFilm.getId() + " не существует.");
     }
-
-/*    @Test
-    public void givenFilms_whenGetAll_thenStatus200() throws Exception {
-        Film film1 = getFilm();
-        film1.setName("Test1");
-        film1.setId(1L);
-        mockMvc.perform(post("/films")
-                        .content(objectMapper.writeValueAsString(film1))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-        Film film2 = getFilm();
-        film2.setName("Test2");
-        film2.setId(2L);
-        mockMvc.perform(post("/films")
-                        .content(objectMapper.writeValueAsString(film2))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-        mockMvc.perform(get("/films"))
-                .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(Arrays.asList(film1, film2))));
-    }*/
 }
