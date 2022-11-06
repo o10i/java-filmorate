@@ -23,5 +23,4 @@ public class User {
     @PastOrPresent(message = "Дата рождения не может быть в будущем.")
     private LocalDate birthday;
     private Set<Long> friends;
-    //private Map<Long, Status> friends;
 }
