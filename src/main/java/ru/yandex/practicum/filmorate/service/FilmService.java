@@ -50,6 +50,7 @@ public class FilmService {
 
 
     public boolean saveLike(Long id, Long userId) {
+        findFilmById(id);
         boolean result = filmStorage.saveLike(id, userId);
         log.debug("Пользователь с id={} поставил лайк на фильм с id={}.", userId, id);
         return result;
