@@ -1,72 +1,44 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.util.List;
 
 @Service
-@Slf4j
+@RequiredArgsConstructor
 public class FilmService {
     private final FilmStorage filmStorage;
 
-    @Autowired
-    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage) {
-        this.filmStorage = filmStorage;
-    }
-
     public Film saveFilm(Film film) {
-        Film savedFilm = filmStorage.saveFilm(film);
-        log.debug("Фильм '{}' с id={} добавлен.", film.getName(), film.getId());
-        return savedFilm;
-    }
-
-    public Film findFilmById(Long id) {
-        Film film = filmStorage.findFilmById(id);
-        if (film == null) {
-            throw new ObjectNotFoundException(String.format("Фильм с id=%d не найден.", id));
-        }
-        log.debug("Фильм '{}' с id={} найден.", film.getName(), film.getId());
-        return film;
-    }
-
-    public List<Film> findAllFilms() {
-        List<Film> films = filmStorage.findAllFilms();
-        log.debug("Все фильмы найдены.");
-        return films;
+        return filmStorage.saveFilm(film);
     }
 
     public Film updateFilm(Film film) {
         findFilmById(film.getId());
-        Film updatedFilm = filmStorage.updateFilm(film);
-        log.debug("Фильм с id={} обновлён.", film.getId());
-        return updatedFilm;
+        return filmStorage.updateFilm(film);
     }
 
+    public List<Film> findAllFilms() {
+        return filmStorage.findAllFilms();
+    }
+
+    public Film findFilmById(Long id) {
+        return filmStorage.findFilmById(id);
+    }
 
     public boolean saveLike(Long id, Long userId) {
         findFilmById(id);
-        boolean result = filmStorage.saveLike(id, userId);
-        log.debug("Пользователь с id={} поставил лайк на фильм с id={}.", userId, id);
-        return result;
-    }
-
-    public List<Film> findPopularFilms(Integer count) {
-        List<Film> popularFilms = filmStorage.findPopularFilms(count);
-        log.debug("{} наиболее популярных фильмов возвращены.", count);
-        return popularFilms;
+        return filmStorage.saveLike(id, userId);
     }
 
     public boolean deleteLike(Long id, Long userId) {
-        if (!filmStorage.deleteLike(id, userId)) {
-            throw new ObjectNotFoundException(String.format("Пользователь с id=%d не ставил лайк фильму с id=%d.", userId, id));
-        }
-        log.debug("Пользователь с id={} удалил лайк с фильма с id={}.", userId, id);
-        return true;
+        return filmStorage.deleteLike(id, userId);
+    }
+
+    public List<Film> findPopularFilms(Integer count) {
+        return filmStorage.findPopularFilms(count);
     }
 }

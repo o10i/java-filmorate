@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
@@ -10,27 +10,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/users")
+@RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-
-    @Autowired
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
 
     @PostMapping()
     public User saveUser(@Valid @RequestBody User user) {
         return userService.saveUser(user);
-    }
-
-    @GetMapping("/{id}")
-    public User findUserById(@PathVariable Long id) {
-        return userService.findUserById(id);
-    }
-
-    @GetMapping()
-    public List<User> findAllUsers() {
-        return userService.findAllUsers();
     }
 
     @PutMapping()
@@ -38,9 +24,14 @@ public class UserController {
         return userService.updateUser(user);
     }
 
-    @GetMapping("/{id}/friends/common/{otherId}")
-    public List<User> findCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
-        return userService.findCommonFriends(id, otherId);
+    @GetMapping()
+    public List<User> findAllUsers() {
+        return userService.findAllUsers();
+    }
+
+    @GetMapping("/{id}")
+    public User findUserById(@PathVariable Long id) {
+        return userService.findUserById(id);
     }
 
     @GetMapping("/{id}/friends")
@@ -56,5 +47,10 @@ public class UserController {
     @DeleteMapping("/{id}/friends/{friendId}")
     public boolean deleteFriend(@PathVariable Long id, @PathVariable Long friendId) {
         return userService.deleteFriend(id, friendId);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> findCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
+        return userService.findCommonFriends(id, otherId);
     }
 }

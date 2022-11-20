@@ -1,6 +1,6 @@
-package ru.yandex.practicum.filmorate.dao;
+package ru.yandex.practicum.filmorate.storage.dao;
 
-import org.springframework.dao.EmptyResultDataAccessException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
@@ -11,26 +11,20 @@ import java.sql.SQLException;
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class MpaDbStorage {
     private final JdbcTemplate jdbcTemplate;
 
-    public MpaDbStorage(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
-
     public Mpa findMpaById(Long id) {
-        String sqlQuery = "select * from mpa where id = ?";
-        Mpa mpa;
-        try {
-            mpa = jdbcTemplate.queryForObject(sqlQuery, this::mapRowToMpa, id);
-        } catch (EmptyResultDataAccessException e) {
-            throw new ObjectNotFoundException("MPA с id " + id + " не найден.");
-        }
-        return mpa;
+        String sqlQuery = "select * from MPA where id = ?";
+        return jdbcTemplate.query(sqlQuery, this::mapRowToMpa, id)
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new ObjectNotFoundException(String.format("MPA с id=%d не найден.", id)));
     }
 
     public List<Mpa> findAllMpa() {
-        String sqlQuery = "select * from mpa";
+        String sqlQuery = "select * from MPA";
         return jdbcTemplate.query(sqlQuery, this::mapRowToMpa);
     }
 

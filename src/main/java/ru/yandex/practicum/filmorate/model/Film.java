@@ -1,7 +1,9 @@
 package ru.yandex.practicum.filmorate.model;
 
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
+import lombok.experimental.FieldDefaults;
 import ru.yandex.practicum.filmorate.validation.FilmReleaseDateConstraint;
 
 import javax.validation.constraints.NotBlank;
@@ -13,19 +15,20 @@ import java.util.List;
 
 @Data
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Film {
-    private Long id;
+    Long id;
     @NotBlank(message = "Название фильма не может быть пустым.")
-    private String name;
+    String name;
     @FilmReleaseDateConstraint
-    private LocalDate releaseDate;
+    LocalDate releaseDate;
     @Size(max = 200, message = "Максимальная длина описания фильма — 200 символов.")
-    private String description;
+    String description;
     @Positive(message = "Продолжительность фильма должна быть положительной.")
-    private int duration;
-    private Integer rate;
+    int duration;
+    Integer rate;
     @NotNull
-    private Mpa mpa;
-    private List<Genre> genres;
-    private List<Long> likes;
+    Mpa mpa;
+    List<Genre> genres;
+    List<Long> likes;
 }

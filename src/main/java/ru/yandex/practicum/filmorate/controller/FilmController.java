@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
@@ -10,27 +10,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/films")
+@RequiredArgsConstructor
 public class FilmController {
     private final FilmService filmService;
-
-    @Autowired
-    public FilmController(FilmService filmService) {
-        this.filmService = filmService;
-    }
 
     @PostMapping()
     public Film saveFilm(@Valid @RequestBody Film film) {
         return filmService.saveFilm(film);
-    }
-
-    @GetMapping("/{id}")
-    public Film findFilmById(@PathVariable Long id) {
-        return filmService.findFilmById(id);
-    }
-
-    @GetMapping()
-    public List<Film> findAllFilms() {
-        return filmService.findAllFilms();
     }
 
     @PutMapping()
@@ -38,18 +24,28 @@ public class FilmController {
         return filmService.updateFilm(film);
     }
 
+    @GetMapping()
+    public List<Film> findAllFilms() {
+        return filmService.findAllFilms();
+    }
+
+    @GetMapping("/{id}")
+    public Film findFilmById(@PathVariable Long id) {
+        return filmService.findFilmById(id);
+    }
+
     @PutMapping("/{id}/like/{userId}")
     public boolean saveLike(@PathVariable Long id, @PathVariable Long userId) {
         return filmService.saveLike(id, userId);
     }
 
-    @GetMapping("/popular")
-    public List<Film> findPopularFilms(@RequestParam(defaultValue = "10") Integer count) {
-        return filmService.findPopularFilms(count);
-    }
-
     @DeleteMapping("/{id}/like/{userId}")
     public boolean deleteLike(@PathVariable Long id, @PathVariable Long userId) {
         return filmService.deleteLike(id, userId);
+    }
+
+    @GetMapping("/popular")
+    public List<Film> findPopularFilms(@RequestParam(defaultValue = "10") Integer count) {
+        return filmService.findPopularFilms(count);
     }
 }

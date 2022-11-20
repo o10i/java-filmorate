@@ -8,8 +8,8 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import ru.yandex.practicum.filmorate.dao.FilmDbStorage;
-import ru.yandex.practicum.filmorate.dao.UserDbStorage;
+import ru.yandex.practicum.filmorate.storage.dao.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.dao.UserDbStorage;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -167,7 +167,7 @@ class FilmControllerTests {
     @Test
     void testDeleteUnknownUserLike() {
         filmDbStorage.saveFilm(getFilm());
-        assertFalse(filmDbStorage.deleteLike(1L, -2L));
+        assertThrows(ObjectNotFoundException.class,() -> filmDbStorage.deleteLike(1L, -2L), "Пользователь с id=-2 не ставил лайк фильму с id=1");
     }
 
     @Test

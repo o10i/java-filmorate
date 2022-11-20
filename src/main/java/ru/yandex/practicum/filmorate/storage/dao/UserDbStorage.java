@@ -1,25 +1,22 @@
-package ru.yandex.practicum.filmorate.dao;
+package ru.yandex.practicum.filmorate.storage.dao;
 
-import org.springframework.dao.EmptyResultDataAccessException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.sql.*;
 import java.util.List;
 import java.util.Objects;
 
-@Component("userDbStorage")
+@Repository("userStorage")
+@RequiredArgsConstructor
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
-
-    public UserDbStorage(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     @Override
     public User saveUser(User user) {
@@ -39,19 +36,16 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User findUserById(Long id) {
-        String sqlQuery = "select * from users where id = ?";
-        User user;
-        try {
-            user = jdbcTemplate.queryForObject(sqlQuery, this::mapRowToUser, id);
-        } catch (EmptyResultDataAccessException e) {
-            throw new ObjectNotFoundException("Пользователь с id " + id + " не найден.");
-        }
-        return user;
+        String sqlQuery = "select * from USERS where id = ?";
+        return jdbcTemplate.query(sqlQuery, this::mapRowToUser, id)
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new ObjectNotFoundException(String.format("Пользователь с id=%d не найден.", id)));
     }
 
     @Override
     public List<User> findAllUsers() {
-        String sqlQuery = "select * from users";
+        String sqlQuery = "select * from USERS";
         return jdbcTemplate.query(sqlQuery, this::mapRowToUser);
     }
 
@@ -91,7 +85,9 @@ public class UserDbStorage implements UserStorage {
     @Override
     public boolean deleteFriend(Long id, Long friendId) {
         String sqlQuery = "delete from FRIENDSHIP where USER_ID = ? and FRIEND_ID = ?";
-        jdbcTemplate.update(sqlQuery, id, friendId);
+        if (jdbcTemplate.update(sqlQuery, id, friendId) < 1) {
+            throw new ObjectNotFoundException(String.format("Пользователь с id=%d не подписан на пользователя с id=%d.", friendId, id));
+        }
         return true;
     }
 
